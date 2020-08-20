@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Position;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,37 +15,35 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PositionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, Position::class);
+        $this->em = $em;
     }
 
-    // /**
-    //  * @return Position[] Returns an array of Position objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function savePosition($name)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $newPosition = new Position();
 
-    /*
-    public function findOneBySomeField($value): ?Position
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $newPosition
+            ->setName($name);
+
+        $this->em->persist($newPosition);
+        $this->em->flush();
+        $this->em->close();
     }
-    */
+
+    public function updatePosition(Position $position)
+    {
+        $this->em->persist($position);
+        $this->em->flush();
+        $this->em->close();
+    }
+
+    public function removePosition(Position $position)
+    {
+        $this->em->remove($position);
+        $this->em->flush();
+        $this->em->close();
+    }
 }

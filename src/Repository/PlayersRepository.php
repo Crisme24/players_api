@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Players;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,37 +15,38 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PlayersRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $em)
     {
         parent::__construct($registry, Players::class);
+        $this->em = $em;
     }
 
-    // /**
-    //  * @return Players[] Returns an array of Players objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function savePlayer($name, $team, $position, $price)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $newPlayer = new Players();
 
-    /*
-    public function findOneBySomeField($value): ?Players
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $newPlayer
+            ->setName($name)
+            ->setTeam($team)
+            ->setPosition($position)
+            ->setPrice($price);
+
+        $this->em->persist($newPlayer);
+        $this->em->flush();
+        $this->em->close();
     }
-    */
+
+    public function updatePlayer(Players $player)
+    {
+        $this->em->persist($player);
+        $this->em->flush();
+        $this->em->close();
+    }
+
+    public function removePlayer(Players $player)
+    {
+        $this->em->remove($player);
+        $this->em->flush();
+        $this->em->close();
+    }
 }
